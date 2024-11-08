@@ -7,7 +7,7 @@ app.use(express.json());
 
 const db = new sqlite3.Database('./itemsdb.sqlite', (err) => {
     if(err) {
-        console.err('Deu erro!');
+        console.error('Deu erro!');
     } else {
         console.log('Deu certo!');
     }
@@ -27,7 +27,7 @@ app.post("/items", (req,res)=>{
     const  {name , descricao } = req.body;
     const query = `INSERT INTO items(name, descricao) VALUES (?,?)`// ?? para impedir ataques maliciosos
 
-    db.all(query, [name, descricao], (err) => {
+    db.run(query, [name, descricao], (err) => {
         if (err){
             res.status(400).json({message : err.message});
 
@@ -41,7 +41,7 @@ app.post("/items", (req,res)=>{
 
 app.get('/items', (req,res) => {
     const query = "SELECT * FROM  items";
-    db.run(query,[],(err,rows)=>{
+    db.all(query,id,(err,rows)=>{
         if(err){
             console.error({message:err.message});
         }else{
@@ -50,6 +50,63 @@ app.get('/items', (req,res) => {
     })
 
 });
+
+app.put('/items/:id', (req, res) => {
+    const { id } = req.params;  
+    const { name, descricao } = req.body; 
+    const query = 'UPDATE items SET name = ?, descricao = ? WHERE id = ?';
+    db.run(query, [name, descricao, id], function (err) {
+        if (err) {
+            console.error('Não funfou:', err.message);
+            return res.status(400).json({ message: err.message });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ message: 'Item não encontrado!' });
+        }else{
+        res.status(200).json({
+            id,
+            name,
+            descricao
+        });
+}});
+});
+
+app.patch('/items/:id',(req,res)=>{
+    const { id } = req.params;  
+    const { name, descricao } = req.body; 
+    const query = 'UPDATE items SET name = ?, descricao = ? WHERE id = ?';
+    db.run(query, [name, descricao, id], function (err) {
+        if (err) {
+            console.error('Não funfou:', err.message);
+            return res.status(400).json({ message: err.message });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ message: 'Que nem o mundial do Palmeiras, isso não foi encontrado' });
+        }else{
+        res.status(200).json({
+            id,
+            name,
+            descricao
+        });
+}});
+});
+
+app.delete('/items/:id',(req,res)=>{
+    const {id}=req.params;
+    const query = 'DELETE FROM items WHERE id = ?';
+    db.run(query,[id],function(err){
+        if(err){
+            console.error('Me recuso a deletar bro',err.message);
+            return res.status(400).json({message:err.message});            
+        }if(this.changes === 0){
+            return res.status(404).json({message:'Não existe isso aqui'})
+        }else{
+            res.status(200).json({
+                id
+            })
+        }
+    })
+})
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
 });
