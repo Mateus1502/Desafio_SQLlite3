@@ -54,7 +54,7 @@ app.get('/items', (req,res) => {
 app.get('/items/:id',(req,res) =>{
     const {id} = req.params;
     const query = 'SELECT * FROM items WHERE id =?';
-    db.get(query,id(err,rows)=>{
+    db.get(query,[id](err,rows)=>{
         if (err){
             console.error({'Certeza que é isso que você quer?',err.message})
             return res.status(400).json({message:err.message})
