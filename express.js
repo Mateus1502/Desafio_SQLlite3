@@ -59,7 +59,7 @@ app.get('/items/:id',(req,res) =>{
             console.error({'Certeza que é isso que você quer?',err.message})
             return res.status(400).json({message:err.message})
         }else{
-            res.status(200).json(rows);
+            res.status(200).json(row);
         }
     })
 });
