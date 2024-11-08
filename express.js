@@ -43,7 +43,8 @@ app.get('/items', (req,res) => {
     const query = "SELECT * FROM  items";
     db.all(query,(err,rows)=>{
         if(err){
-            console.error({message:err.message});
+            console.error({'Não deu para achar', err.message})
+            return res.status(400).json({message:err.message});
         }else{
             res.status(200).json(rows);
         }
